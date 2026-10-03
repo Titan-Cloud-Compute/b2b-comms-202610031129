@@ -15,3 +15,21 @@ import { Routes } from '@angular/router';
  * Or add routes here directly.
  */
 export const FEATURE_ROUTES: Routes = [];
+
+/**
+ * Feature routes rendered INSIDE the authenticated layout (sidebar shell).
+ * app.routes.ts spreads these into the layout's children, which already sit
+ * behind authGuard.
+ */
+export const LAYOUT_FEATURE_ROUTES: Routes = [
+  {
+    path: 'channels',
+    loadComponent: () =>
+      import('./shared-channel/shared-channel.component').then(m => m.SharedChannelComponent),
+  },
+  {
+    path: 'channels/:id',
+    loadComponent: () =>
+      import('./shared-channel/shared-channel.component').then(m => m.SharedChannelComponent),
+  },
+];

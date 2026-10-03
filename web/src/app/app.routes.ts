@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { FEATURE_ROUTES } from './features/index';
+import { FEATURE_ROUTES, LAYOUT_FEATURE_ROUTES } from './features/index';
 import { authGuard, roleGuard } from './shared/auth.guards';
 
 export const routes: Routes = [
@@ -53,6 +53,7 @@ export const routes: Routes = [
     canActivate: [authGuard],
     data: { rendersSupportFooterInLayout: true },
     children: [
+      ...LAYOUT_FEATURE_ROUTES,
       {
         path: 'dashboard',
         loadComponent: () => import('./dashboard/dashboard.component').then(m => m.DashboardComponent)

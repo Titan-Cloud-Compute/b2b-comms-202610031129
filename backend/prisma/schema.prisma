@@ -137,3 +137,58 @@ model ColossusAccount {
 
   @@map("colossus_accounts")
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Story: shared-channel — vendor ↔ customer shared communication channels.
+// Owns Customer and Message. User ids are stored as plain strings so the auth
+// tables are never altered.
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum SharedChannelRole {
+  VENDOR
+  CUSTOMER
+}
+
+model Customer {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  email     String
+  name      String?
+  createdAt DateTime @default(now())
+}
+
+model SharedChannel {
+  id          String                @id @default(cuid())
+  name        String
+  createdById String
+  createdAt   DateTime              @default(now())
+  members     SharedChannelMember[]
+  messages    Message[]
+
+  @@index([createdById])
+}
+
+model SharedChannelMember {
+  id        String            @id @default(cuid())
+  channelId String
+  channel   SharedChannel     @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  userId    String
+  email     String
+  role      SharedChannelRole
+  createdAt DateTime          @default(now())
+
+  @@unique([channelId, userId])
+  @@index([userId])
+}
+
+model Message {
+  id          String        @id @default(cuid())
+  channelId   String
+  channel     SharedChannel @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  authorId    String
+  authorEmail String
+  body        String
+  createdAt   DateTime      @default(now())
+
+  @@index([channelId, createdAt])
+}
