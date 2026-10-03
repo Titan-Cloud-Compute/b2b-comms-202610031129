@@ -231,3 +231,22 @@ model VendorDocument {
 
   @@index([vendorProfileId])
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Customer invite (Story: customer-invite)
+// token mirrors a RegistrationToken.token; invitedById is a plain reference so
+// the auth tables stay untouched.
+// ─────────────────────────────────────────────────────────────────────────────
+
+model CustomerInvite {
+  id          String    @id @default(cuid())
+  email       String
+  token       String    @unique
+  invitedById String
+  status      String    @default("PENDING")
+  expiresAt   DateTime
+  acceptedAt  DateTime?
+  createdAt   DateTime  @default(now())
+
+  @@index([email])
+}

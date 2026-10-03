@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { roleGuard } from '../shared/auth.guards';
 import { vendorProfileGuard } from './vendor-onboarding/vendor-profile.guard';
 
 /**
@@ -16,6 +17,13 @@ import { vendorProfileGuard } from './vendor-onboarding/vendor-profile.guard';
  * Or add routes here directly.
  */
 export const FEATURE_ROUTES: Routes = [
+  // Story: customer-invite — public page that redeems the emailed activation link.
+  {
+    path: 'activate',
+    loadComponent: () =>
+      import('./customer-invite/activate.component').then(m => m.ActivateComponent),
+    data: { hideSupportFooter: true },
+  },
 ];
 
 /**
@@ -47,5 +55,13 @@ export const LAYOUT_FEATURE_ROUTES: Routes = [
     path: 'channels/:id',
     loadComponent: () =>
       import('./shared-channel/shared-channel.component').then(m => m.SharedChannelComponent),
+  },
+  // Story: customer-invite — admin-only invite screen.
+  {
+    path: 'customer-invites',
+    canActivate: [roleGuard],
+    data: { roles: ['ADMIN', 'SUPER_ADMIN'] },
+    loadComponent: () =>
+      import('./customer-invite/customer-invite.component').then(m => m.CustomerInviteComponent),
   },
 ];

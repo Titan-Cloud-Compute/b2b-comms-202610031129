@@ -14,6 +14,7 @@ import { VendorOnboardingModule } from './vendor-onboarding/vendor-onboarding.mo
  * Or simply add it here directly.
  */
 import { SharedChannelModule } from './shared-channel/shared-channel.module';
+import { CustomerInviteModule } from './customer-invite/customer-invite.module';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const FEATURE_MODULES: any[] = [SharedChannelModule, VendorOnboardingModule];
+export const FEATURE_MODULES: any[] = [SharedChannelModule, VendorOnboardingModule, CustomerInviteModule];
