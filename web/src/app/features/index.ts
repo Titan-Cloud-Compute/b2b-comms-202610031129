@@ -1,4 +1,6 @@
 import { Routes } from '@angular/router';
+import { authGuard } from '../shared/auth.guards';
+import { vendorProfileGuard } from './vendor-onboarding/vendor-profile.guard';
 
 /**
  * Feature route registry.
@@ -14,7 +16,30 @@ import { Routes } from '@angular/router';
  *
  * Or add routes here directly.
  */
-export const FEATURE_ROUTES: Routes = [];
+export const FEATURE_ROUTES: Routes = [
+  // Story: vendor-onboarding
+  {
+    path: 'vendor',
+    loadComponent: () => import('../shared/layout.component').then(m => m.LayoutComponent),
+    canActivate: [authGuard],
+    data: { rendersSupportFooterInLayout: true },
+    children: [
+      {
+        path: '',
+        pathMatch: 'full',
+        canActivate: [vendorProfileGuard],
+        loadComponent: () =>
+          import('./vendor-onboarding/vendor-dashboard.component').then(m => m.VendorDashboardComponent),
+      },
+      {
+        path: 'onboarding',
+        loadComponent: () =>
+          import('./vendor-onboarding/vendor-profile.component').then(m => m.VendorProfileComponent),
+      },
+      { path: 'documents', redirectTo: '', pathMatch: 'full' },
+    ],
+  },
+];
 
 /**
  * Feature routes rendered INSIDE the authenticated layout (sidebar shell).

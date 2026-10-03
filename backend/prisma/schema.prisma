@@ -192,3 +192,42 @@ model Message {
 
   @@index([channelId, createdAt])
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Vendor onboarding (Story: vendor-onboarding)
+// userId is a plain reference (no relation) so the auth User model stays untouched.
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum VendorDocumentStatus {
+  PENDING_REVIEW
+  APPROVED
+  REJECTED
+}
+
+model VendorProfile {
+  id           String           @id @default(cuid())
+  userId       String           @unique
+  companyName  String
+  contactName  String
+  contactEmail String
+  contactPhone String?
+  address      String?
+  documents    VendorDocument[]
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+}
+
+model VendorDocument {
+  id              String               @id @default(cuid())
+  vendorProfileId String
+  vendorProfile   VendorProfile        @relation(fields: [vendorProfileId], references: [id], onDelete: Cascade)
+  documentType    String
+  fileName        String
+  contentType     String?
+  sizeBytes       Int
+  storageKey      String
+  status          VendorDocumentStatus @default(PENDING_REVIEW)
+  createdAt       DateTime             @default(now())
+
+  @@index([vendorProfileId])
+}

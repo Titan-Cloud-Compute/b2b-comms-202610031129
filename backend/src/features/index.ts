@@ -1,3 +1,5 @@
+import { VendorOnboardingModule } from './vendor-onboarding/vendor-onboarding.module';
+
 /**
  * Feature module registry.
  *
@@ -14,4 +16,4 @@
 import { SharedChannelModule } from './shared-channel/shared-channel.module';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const FEATURE_MODULES: any[] = [SharedChannelModule];
+export const FEATURE_MODULES: any[] = [SharedChannelModule, VendorOnboardingModule];
