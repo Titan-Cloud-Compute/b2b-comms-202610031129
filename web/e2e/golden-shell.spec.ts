@@ -15,10 +15,6 @@
  */
 import { test, expect, type Page } from '@playwright/test';
 
-const KEPT_ROUTES = [
-  'dashboard', 'settings',
-  'admin/overview', 'admin/users', 'admin/app-settings',
-];
 // Regex built from split fragments so the template source itself does not
 // contain the literal strings (the content-sweep grep would flag them).
 const LOCALE_GUARD = new RegExp(
@@ -37,11 +33,18 @@ async function mockApi(page: Page): Promise<void> {
       route.fulfill({ status, contentType: 'application/json', body: JSON.stringify(body) });
 
     if (method === 'POST' && apiPath === 'auth/login') {
-      store.user = { id: '1', email: 'user@example.com', role: 'USER' };
+      const body = req.postDataJSON() as { email?: string } | null;
+      const email = body?.email ?? 'user@example.com';
+      const role = email === 'admin@example.com' ? 'ADMIN' : 'USER';
+      store.user = { id: '1', email, role };
       return json(store.user);
     }
     if (method === 'GET' && apiPath === 'users/me') {
       return store.user ? json(store.user) : json({ message: 'Unauthorized' }, 401);
+    }
+    if (method === 'POST' && apiPath === 'auth/logout') {
+      store.user = null;
+      return json({ ok: true });
     }
     if (method === 'POST' && apiPath === 'auth/password-reset/request') return json({ ok: true });
     if (method === 'POST' && apiPath === 'auth/password-reset/confirm') return json({ ok: true });
@@ -56,6 +59,14 @@ async function login(page: Page): Promise<void> {
   await page.locator('#password').fill('password1234');
   await page.locator('button[type="submit"]').click();
   await expect(page).toHaveURL(/#\/dashboard/, { timeout: 10_000 });
+}
+
+async function loginAsAdmin(page: Page): Promise<void> {
+  await page.goto('/#/login');
+  await page.locator('#email').fill('admin@example.com');
+  await page.locator('#password').fill('password1234');
+  await page.locator('button[type="submit"]').click();
+  await expect(page).toHaveURL(/#\/admin\/overview/, { timeout: 10_000 });
 }
 
 test.use({ serviceWorkers: 'block' });
@@ -101,9 +112,21 @@ test('forgot-password → request → reset with token → back to login', async
   await expect(page).toHaveURL(/#\/login/, { timeout: 10_000 });
 });
 
-test('every kept route renders a data-free placeholder with no locale-specific strings', async ({ page }) => {
+const USER_ROUTES = ['dashboard', 'settings'];
+const ADMIN_ROUTES = ['admin/overview', 'admin/users', 'admin/app-settings'];
+
+test('user routes render a data-free placeholder with no locale-specific strings', async ({ page }) => {
   await login(page);
-  for (const r of KEPT_ROUTES) {
+  for (const r of USER_ROUTES) {
+    await page.goto(`/#/${r}`);
+    await expect(page.locator('main.main-content [data-placeholder]').first(), r).toBeVisible();
+    expect(await page.locator('body').innerText(), r).not.toMatch(LOCALE_GUARD);
+  }
+});
+
+test('admin routes render a data-free placeholder with no locale-specific strings', async ({ page }) => {
+  await loginAsAdmin(page);
+  for (const r of ADMIN_ROUTES) {
     await page.goto(`/#/${r}`);
     await expect(page.locator('main.main-content [data-placeholder]').first(), r).toBeVisible();
     expect(await page.locator('body').innerText(), r).not.toMatch(LOCALE_GUARD);
