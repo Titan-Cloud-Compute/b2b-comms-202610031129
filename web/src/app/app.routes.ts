@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { FEATURE_ROUTES } from './features/index';
+import { authGuard, roleGuard } from './shared/auth.guards';
 
 export const routes: Routes = [
   ...FEATURE_ROUTES,
@@ -49,6 +50,7 @@ export const routes: Routes = [
   {
     path: '',
     loadComponent: () => import('./shared/layout.component').then(m => m.LayoutComponent),
+    canActivate: [authGuard],
     data: { rendersSupportFooterInLayout: true },
     children: [
       {
@@ -61,18 +63,26 @@ export const routes: Routes = [
       },
       {
         path: 'admin',
+        canActivate: [roleGuard],
+        data: { roles: ['ADMIN', 'SUPER_ADMIN'] },
         loadComponent: () => import('./admin/admin.component').then(m => m.AdminComponent)
       },
       {
         path: 'admin/overview',
+        canActivate: [roleGuard],
+        data: { roles: ['ADMIN', 'SUPER_ADMIN'] },
         loadComponent: () => import('./admin/admin.component').then(m => m.AdminComponent)
       },
       {
         path: 'admin/users',
+        canActivate: [roleGuard],
+        data: { roles: ['ADMIN', 'SUPER_ADMIN'] },
         loadComponent: () => import('./admin/admin.component').then(m => m.AdminComponent)
       },
       {
         path: 'admin/app-settings',
+        canActivate: [roleGuard],
+        data: { roles: ['ADMIN', 'SUPER_ADMIN'] },
         loadComponent: () => import('./admin/admin.component').then(m => m.AdminComponent)
       },
     ]
