@@ -18,8 +18,9 @@ export const ROLES_KEY = 'allowed_roles';
  * to populate req.session.
  *
  * Convenience aliases:
- *   @RequireUser()   — any authenticated user (USER, MANAGER, ADMIN)
- *   @RequireAdmin()  — ADMIN only
+ *   @RequireUser()    — any authenticated user (USER, MANAGER, ADMIN)
+ *   @RequireManager() — MANAGER or ADMIN
+ *   @RequireAdmin()   — ADMIN only
  */
 export const Roles = (...roles: UserRole[]): ReturnType<typeof SetMetadata> =>
   SetMetadata(ROLES_KEY, roles);
@@ -28,6 +29,9 @@ export const RequireUser = (): ReturnType<typeof SetMetadata> =>
   Roles('USER', 'MANAGER', 'ADMIN');
 export const RequireFirmUser = (): ReturnType<typeof SetMetadata> =>
   Roles('USER', 'MANAGER', 'ADMIN');
+/** MANAGER or ADMIN — use for routes that should be accessible to managers and admins but not regular users. */
+export const RequireManager = (): ReturnType<typeof SetMetadata> =>
+  Roles('MANAGER', 'ADMIN');
 export const RequireAdmin = (): ReturnType<typeof SetMetadata> =>
   Roles('ADMIN');
 
