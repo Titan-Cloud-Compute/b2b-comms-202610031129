@@ -1,5 +1,4 @@
 import { Routes } from '@angular/router';
-import { authGuard } from '../shared/auth.guards';
 import { vendorProfileGuard } from './vendor-onboarding/vendor-profile.guard';
 
 /**
@@ -17,28 +16,6 @@ import { vendorProfileGuard } from './vendor-onboarding/vendor-profile.guard';
  * Or add routes here directly.
  */
 export const FEATURE_ROUTES: Routes = [
-  // Story: vendor-onboarding
-  {
-    path: 'vendor',
-    loadComponent: () => import('../shared/layout.component').then(m => m.LayoutComponent),
-    canActivate: [authGuard],
-    data: { rendersSupportFooterInLayout: true },
-    children: [
-      {
-        path: '',
-        pathMatch: 'full',
-        canActivate: [vendorProfileGuard],
-        loadComponent: () =>
-          import('./vendor-onboarding/vendor-dashboard.component').then(m => m.VendorDashboardComponent),
-      },
-      {
-        path: 'onboarding',
-        loadComponent: () =>
-          import('./vendor-onboarding/vendor-profile.component').then(m => m.VendorProfileComponent),
-      },
-      { path: 'documents', redirectTo: '', pathMatch: 'full' },
-    ],
-  },
 ];
 
 /**
@@ -47,6 +24,20 @@ export const FEATURE_ROUTES: Routes = [
  * behind authGuard.
  */
 export const LAYOUT_FEATURE_ROUTES: Routes = [
+  // Story: vendor-onboarding (inside the authenticated layout shell)
+  {
+    path: 'vendor',
+    pathMatch: 'full',
+    canActivate: [vendorProfileGuard],
+    loadComponent: () =>
+      import('./vendor-onboarding/vendor-dashboard.component').then(m => m.VendorDashboardComponent),
+  },
+  {
+    path: 'vendor/onboarding',
+    loadComponent: () =>
+      import('./vendor-onboarding/vendor-profile.component').then(m => m.VendorProfileComponent),
+  },
+  { path: 'vendor/documents', redirectTo: 'vendor', pathMatch: 'full' },
   {
     path: 'channels',
     loadComponent: () =>
